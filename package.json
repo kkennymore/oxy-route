@@ -1,0 +1,38 @@
+{
+  "name": "oxy-route",
+  "version": "1.0.0",
+  "description": "Fast and secure Express-like router with built-in middleware, WebSocket, validation, monitoring, and more.",
+  "main": "index.js",
+  "bin": {
+    "oxy-route": "./bin/oxy-route.js"
+  },
+  "scripts": {
+    "test": "jest",
+    "bench": "node tests/benchmark/route.bench.js"
+  },
+  "keywords": [
+    "router",
+    "express",
+    "http",
+    "middleware",
+    "websocket",
+    "validation",
+    "zod",
+    "nodejs",
+    "oxy"
+  ],
+  "author": "Usiobaifo Kenneth <your.email@example.com>",
+  "license": "MIT",
+  "dependencies": {
+    "zod": "^3.x",
+    "uuid": "^9.x",
+    "prom-client": "^15.x",
+    "winston": "^3.x"
+  },
+  "devDependencies": {
+    "jest": "^29.x",
+    "supertest": "^6.x",
+    "ws": "^8.x",
+    "autocannon": "^7.x"
+  }
+}
