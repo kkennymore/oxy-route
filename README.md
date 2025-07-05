@@ -1,19 +1,23 @@
-# oxy-route
+# ⚡ oxy-route
 
-> 🚀 A fast, secure, extensible routing framework for Node.js with Express-like syntax — powered by trie-based routing, middleware, validation, WebSocket, logging, and metrics.
+> 🚀 A modern, high-performance routing framework for Node.js with Express-like syntax — built with trie-based routing, middleware, validation, WebSocket, logging, clustering, and Prometheus monitoring.
 
-![npm](https://img.shields.io/npm/v/oxy-route)
-![license](https://img.shields.io/github/license/yourname/oxy-route)
-![tests](https://img.shields.io/github/workflow/status/yourname/oxy-route/test)
+[![npm](https://img.shields.io/npm/v/oxy-route)](https://www.npmjs.com/package/oxy-route)
+[![license](https://img.shields.io/github/license/kkennymore/oxy-route)](LICENSE)
+[![tests](https://img.shields.io/github/actions/workflow/status/kkennymore/oxy-route/test.yml)](https://github.com/kkennymore/oxy-route/actions)
 
 ---
 
 ## 🔧 Installation
 
-```bash
-npm install oxy-route
-npm install github:kkennymore/oxy-route
+Install from npm or GitHub:
 
+```bash
+# From NPM (once published)
+npm install oxy-route
+
+# From GitHub
+npm install github:kkennymore/oxy-route
 ```
 
 ---
@@ -22,7 +26,7 @@ npm install github:kkennymore/oxy-route
 
 ```js
 const http = require('http');
-const Router = require('oxy-route');
+const { Router } = require('oxy-route');
 
 const router = new Router();
 
@@ -30,34 +34,48 @@ router.get('/ping', (req, res) => {
   res.end('pong');
 });
 
-http.createServer(router.handler()).listen(3000);
+http.createServer(router.handler()).listen(3000, () => {
+  console.log('Server listening on http://localhost:3000');
+});
+```
 
+---
+
+## 📁 Features
+
+✅ Trie-based routing engine for ultra-fast performance  
+✅ Middleware stack with `async`, `next()`, and robust error handling  
+✅ Request validation with [Zod](https://zod.dev) for both HTTP and WebSocket  
+✅ WebSocket engine with room broadcasting, middleware, reconnect/auth support  
+✅ Integrated security: `helmet`, sanitization, and rate-limiting  
+✅ Logging (Winston) + `/metrics` endpoint (Prometheus-compatible)  
+✅ Cluster support via Node.js cluster or PM2  
+✅ Hot-reload dev server and command-line tools  
+✅ Fully tested with Jest and benchmarked  
+
+---
+
+## 📦 Full Example
+
+```js
+const { z } = require('zod');
 const {
   Router,
   WebSocketEngine,
   validate,
-  security,
   Logger,
-  ClusterEngine
+  ClusterEngine,
+  security
 } = require('oxy-route');
 
 const router = new Router();
 
-// Basic route
-router.get('/ping', (req, res) => {
-  res.json({ message: 'pong' });
-});
+// Global middleware
+router.use(security.helmet);
+router.use(security.rateLimiter);
+router.use(security.sanitizer);
 
-// Socket route
-router.post(
-  '/chat/send',
-  async (req, res) => {
-    res.json({ message: 'sent' });
-  },
-  { isSocket: true }
-);
-
-// Validation
+// HTTP Route
 router.post(
   '/login',
   validate({
@@ -67,65 +85,36 @@ router.post(
     })
   }),
   (req, res) => {
-    res.json({ token: 'JWT_TOKEN' });
+    res.json({ token: 'fake-jwt-token' });
   }
 );
 
-// Cluster Mode
+// WebSocket-enhanced route
+router.post(
+  '/chat/send',
+  async (req, res) => {
+    res.json({ message: 'sent via WebSocket and HTTP' });
+  },
+  { isSocket: true }
+);
+
+// Cluster entry point
 ClusterEngine(() => {
   const http = require('http');
   const server = http.createServer(router.handler());
   new WebSocketEngine(server, router.websocketRoutes);
-  server.listen(5000, () => Logger.log('Server running on 5000'));
+  server.listen(5000, () => Logger.log('🚀 Server running on port 5000'));
 });
-```
-
----
-
-## 📁 Features
-
-✅ Trie-based routing engine  
-✅ Middleware stack with `async`, `next()`, error propagation  
-✅ `Zod` validation for HTTP & WebSocket  
-✅ WebSocket engine with rooms, middleware, broadcast support  
-✅ `helmet`, `sanitize`, rate limiting security  
-✅ Prometheus `/metrics` + Winston structured logging  
-✅ Cluster-ready + hot-reload dev tooling (CLI WIP)  
-✅ Fully tested + benchmarked
-
----
-
-## 📚 Example
-
-```js
-const { z } = require('zod');
-const { validate } = require('oxy-route/src/validation/validator');
-const { requestLogger } = require('oxy-route/src/logging/logger');
-
-const router = new Router();
-
-router.use(requestLogger);
-
-router.post(
-  '/register',
-  validate({
-    body: z.object({
-      username: z.string().min(3),
-      password: z.string().min(6)
-    })
-  }),
-  (req, res) => {
-    res.end(`Hello ${req.body.username}`);
-  }
-);
 ```
 
 ---
 
 ## 🔌 WebSocket Support
 
+`oxy-route` allows building real-time WebSocket APIs just like HTTP:
+
 ```js
-const WebSocketEngine = require('oxy-route/src/ws/Engine');
+const WebSocketEngine = require('oxy-route').WebSocketEngine;
 
 const wsRoutes = [
   {
@@ -139,29 +128,61 @@ const wsRoutes = [
 new WebSocketEngine(httpServer, wsRoutes);
 ```
 
+You can also enable WebSocket fallback for any HTTP route using:
+
+```js
+router.post('/chat/message', handler, { isSocket: true });
+```
+
+---
+
+## 🛡️ Security Built-in
+
+- `helmet` for secure headers
+- `rateLimiter` for IP-based throttling
+- `sanitizer` to clean query/body input
+
+These can be added globally or per route.
+
+---
+
+## 📊 Metrics & Logging
+
+- `/metrics` endpoint for Prometheus scraping
+- Request metrics by method/route/status
+- Winston-powered structured logs
+- Unique request IDs for traceability
+
 ---
 
 ## 🛠️ CLI Usage
 
+`oxy-route` comes with a CLI to scaffold apps, run benchmarks, or test:
+
 ```bash
-oxy-route create my-app      # Scaffold project
-oxy-route test               # Run tests
-oxy-route create my-api      # Scaffold new project
-oxy-route dev routes/app.js  # Run dev server
-oxy-route bench              # Benchmark router
-oxy-route version            # Show version
-oxy-route help               # Show usage
+oxy-route create my-app        # Scaffold project from template
+oxy-route dev routes/app.js    # Launch dev server with hot reload
+oxy-route test                 # Run unit + integration tests
+oxy-route bench                # Benchmark the router
+oxy-route version              # Show current version
+oxy-route help                 # List commands
 ```
 
 ---
 
 ## 🧪 Testing
 
+Run all Jest-based unit and integration tests:
+
 ```bash
-npm run test     # runs unit + integration tests
+npm run test
 ```
 
+---
+
 ## ⚡ Benchmarking
+
+Evaluate the routing engine under stress:
 
 ```bash
 npm run bench
@@ -169,25 +190,71 @@ npm run bench
 
 ---
 
+## 🧰 Dev Tools
+
+- `startDevServer(path)` to run hot-reload on route file
+- `debug()` helper for internal inspection
+- `mockRequest`, `mockRouter` testing tools
+
+---
+
+## 🌐 Folder Structure (Template)
+
+```
+my-app/
+├── routes/
+│   └── app.routes.js
+├── ws/
+│   └── chat.routes.js
+├── controllers/
+├── middlewares/
+├── tests/
+│   ├── unit/
+│   └── integration/
+├── app.js
+└── .env
+```
+
+---
+
 ## 🤝 Contributing
 
-Pull requests welcome! To contribute:
+We welcome your contributions! To get involved:
 
 1. Fork the repo
-2. Create a feature branch
-3. Add tests for your changes
-4. Submit a PR
+2. Create a new feature branch
+3. Write tests for your feature
+4. Submit a PR with description
+
+Run formatting and lint before pushing:
+
+```bash
+npm run lint
+npm run test
+```
 
 ---
 
 ## 📄 License
 
-MIT © 2025 Usiobaifo Kenneth
+**MIT License** © 2025 [Usiobaifo Kenneth](mailto:kenneth@hitekfinancials.com)
 
 ---
 
 ## 📬 Contact
 
-Maintainer: [Usiobaifo Kenneth](mailto:kenneth@hitekfinancials.com)  
-Twitter: [@yourhandle](https://twitter.com/yourhandle)  
-GitHub: [github.com/kkennymore](https://github.com/kkennymore)
+- **Maintainer:** [Usiobaifo Kenneth](mailto:kenneth@hitekfinancials.com)  
+- **Twitter:** [@kkennymore](https://twitter.com/kkennymore)  
+- **GitHub:** [github.com/kkennymore](https://github.com/kkennymore)
+
+---
+
+## ⭐ Star the Repo
+
+If you find `oxy-route` useful, consider starring the repo to support the project!
+
+```bash
+https://github.com/kkennymore/oxy-route
+```
+
+---
