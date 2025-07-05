@@ -6,14 +6,9 @@ const { combine, timestamp, json } = format;
 
 const logger = createLogger({
   level: 'info',
-  format: combine(
-    timestamp(),
-    json()
-  ),
+  format: combine(timestamp(), json()),
   defaultMeta: { service: 'oxy-route' },
-  transports: [
-    new transports.Console(),
-  ]
+  transports: [new transports.Console()]
 });
 
 function requestLogger(req, res, next) {

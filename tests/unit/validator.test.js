@@ -23,7 +23,7 @@ describe('Validator Middleware - Unit Tests', () => {
     app = http.createServer((req, res) => {
       if (req.method === 'POST') {
         let data = '';
-        req.on('data', chunk => data += chunk);
+        req.on('data', (chunk) => (data += chunk));
         req.on('end', async () => {
           req.body = JSON.parse(data || '{}');
           await middleware(req, res, () => handler(req, res));

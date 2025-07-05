@@ -14,8 +14,10 @@ class WebSocketEngine {
 
     server.on('upgrade', (req, socket, head) => {
       const { pathname, query } = url.parse(req.url);
-      const route = this.routes.find(r =>
-        (r.method === 'WS' || r.method === 'ALL') && matchPath(r.path, pathname)
+      const route = this.routes.find(
+        (r) =>
+          (r.method === 'WS' || r.method === 'ALL') &&
+          matchPath(r.path, pathname)
       );
 
       if (!route) {
@@ -24,7 +26,7 @@ class WebSocketEngine {
         return;
       }
 
-      this.wss.handleUpgrade(req, socket, head, ws => {
+      this.wss.handleUpgrade(req, socket, head, (ws) => {
         this.#handleConnection(ws, req, route, pathname, parse(query));
       });
     });

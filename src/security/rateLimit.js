@@ -11,7 +11,7 @@ function rateLimit({ windowMs = 60000, max = 100 } = {}) {
       rateStore.set(ip, []);
     }
 
-    const timestamps = rateStore.get(ip).filter(ts => now - ts < windowMs);
+    const timestamps = rateStore.get(ip).filter((ts) => now - ts < windowMs);
     timestamps.push(now);
     rateStore.set(ip, timestamps);
 

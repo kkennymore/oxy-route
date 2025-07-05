@@ -44,7 +44,12 @@ switch (command) {
     execSync('npx jest', { stdio: 'inherit' });
     break;
   }
-
+  case 'dev': {
+    const routeFile = args[0] || './routes/app.routes.js';
+    const port = process.env.PORT || 5000;
+    require('../bin/dev-server').startDevServer(routeFile, port);
+    break;
+  }
   case 'bench': {
     execSync('node tests/benchmark/route.bench.js', { stdio: 'inherit' });
     break;

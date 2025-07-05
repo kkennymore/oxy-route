@@ -66,11 +66,21 @@ class OxyRouter {
   }
 
   // HTTP methods
-  get(path, ...handlers)    { this.register('GET', path, ...handlers); }
-  post(path, ...handlers)   { this.register('POST', path, ...handlers); }
-  put(path, ...handlers)    { this.register('PUT', path, ...handlers); }
-  delete(path, ...handlers) { this.register('DELETE', path, ...handlers); }
-  all(path, ...handlers)    { this.register('ALL', path, ...handlers); }
+  get(path, ...handlers) {
+    this.register('GET', path, ...handlers);
+  }
+  post(path, ...handlers) {
+    this.register('POST', path, ...handlers);
+  }
+  put(path, ...handlers) {
+    this.register('PUT', path, ...handlers);
+  }
+  delete(path, ...handlers) {
+    this.register('DELETE', path, ...handlers);
+  }
+  all(path, ...handlers) {
+    this.register('ALL', path, ...handlers);
+  }
 
   // HTTP server handler
   handler() {

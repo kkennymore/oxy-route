@@ -3,12 +3,16 @@
   "version": "1.0.0",
   "description": "Fast and secure Express-like router with built-in middleware, WebSocket, validation, monitoring, and more.",
   "main": "index.js",
+  "type": "module",
   "bin": {
     "oxy-route": "./bin/oxy-route.js"
   },
   "scripts": {
     "test": "jest",
-    "bench": "node tests/benchmark/route.bench.js"
+    "bench": "node tests/benchmark/route.bench.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"
   },
   "keywords": [
     "router",
@@ -24,15 +28,20 @@
   "author": "Usiobaifo Kenneth <your.email@example.com>",
   "license": "MIT",
   "dependencies": {
-    "zod": "^3.x",
-    "uuid": "^9.x",
     "prom-client": "^15.x",
-    "winston": "^3.x"
+    "uuid": "^9.x",
+    "winston": "^3.x",
+    "zod": "^3.x"
   },
   "devDependencies": {
+    "autocannon": "^7.x",
+    "conventional-changelog-cli": "^5.0.0",
+    "eslint": "^9.30.1",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.5.1",
     "jest": "^29.x",
+    "prettier": "^3.6.2",
     "supertest": "^6.x",
-    "ws": "^8.x",
-    "autocannon": "^7.x"
+    "ws": "^8.x"
   }
 }

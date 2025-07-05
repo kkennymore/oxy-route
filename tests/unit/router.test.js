@@ -11,23 +11,27 @@ describe('OxyRouter - Unit Tests', () => {
     const router = new OxyRouter();
 
     // Basic GET route
-    router.get('/hello', (req, res) => {
+    router.get('/hello', (_req, res) => {
       res.end('Hello World');
     });
 
     // Middleware chaining
-    router.get('/chain', 
-      (req, res, next) => { req.message = 'Hello'; next(); },
+    router.get(
+      '/chain',
+      (req, _res, next) => {
+        req.message = 'Hello';
+        next();
+      },
       (req, res) => res.end(req.message + ' Middleware')
     );
 
     // Error propagation
-    router.get('/error', (req, res) => {
+    router.get('/error', (_req, _res) => {
       throw new Error('Fail');
     });
 
     // Custom error handler
-    router.setErrorHandler((err, req, res) => {
+    router.setErrorHandler((err, _req, res) => {
       res.statusCode = 500;
       res.end('Caught: ' + err.message);
     });

@@ -8,9 +8,11 @@ const { validate } = require('../../src/validation/validator');
 const helmet = require('../../src/security/helmet');
 const sanitize = require('../../src/security/sanitize');
 const rateLimit = require('../../src/security/rateLimit');
-const { prometheusMiddleware, metricsHandler } = require('../../src/monitoring/metrics');
+const {
+  prometheusMiddleware,
+  metricsHandler
+} = require('../../src/monitoring/metrics');
 const { requestLogger } = require('../../src/logging/logger');
-
 
 describe('App Integration - oxy-route full stack', () => {
   let server, app;
@@ -23,9 +25,13 @@ describe('App Integration - oxy-route full stack', () => {
     router.use(sanitize);
     router.use(rateLimit({ windowMs: 1000, max: 10 }));
 
-    router.post('/register', 
+    router.post(
+      '/register',
       validate({
-        body: z.object({ username: z.string().min(3), password: z.string().min(6) })
+        body: z.object({
+          username: z.string().min(3),
+          password: z.string().min(6)
+        })
       }),
       (req, res) => {
         res.end(`Welcome ${req.body.username}`);
@@ -39,13 +45,17 @@ describe('App Integration - oxy-route full stack', () => {
   });
 
   test('POST /register with valid payload returns welcome', async () => {
-    const res = await server.post('/register').send({ username: 'admin', password: '123456' });
+    const res = await server
+      .post('/register')
+      .send({ username: 'admin', password: '123456' });
     expect(res.statusCode).toBe(200);
     expect(res.text).toContain('Welcome');
   });
 
   test('POST /register with invalid payload returns 400', async () => {
-    const res = await server.post('/register').send({ username: 'a', password: '123' });
+    const res = await server
+      .post('/register')
+      .send({ username: 'a', password: '123' });
     expect(res.statusCode).toBe(400);
     expect(res.body.ok).toBe(false);
   });

@@ -32,8 +32,8 @@ server.listen(0, () => {
   let messages1 = [];
   let messages2 = [];
 
-  ws1.on('message', msg => messages1.push(JSON.parse(msg)));
-  ws2.on('message', msg => {
+  ws1.on('message', (msg) => messages1.push(JSON.parse(msg)));
+  ws2.on('message', (msg) => {
     messages2.push(JSON.parse(msg));
     if (messages2.length === 2) {
       console.log('Test passed:', messages2);

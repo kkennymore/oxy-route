@@ -13,7 +13,7 @@ class SocketContext {
     this.route = route;
     this.room = null;
 
-    socket.on('message', msg => {
+    socket.on('message', (msg) => {
       try {
         const data = JSON.parse(msg);
         if (this.route.onMessage) {

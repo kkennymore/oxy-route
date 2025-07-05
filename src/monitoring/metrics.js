@@ -23,10 +23,17 @@ register.registerMetric(httpRequestDuration);
 
 function prometheusMiddleware(routePath = 'unknown') {
   return (req, res, next) => {
-    const end = httpRequestDuration.startTimer({ method: req.method, route: routePath });
+    const end = httpRequestDuration.startTimer({
+      method: req.method,
+      route: routePath
+    });
 
     res.on('finish', () => {
-      httpRequestCount.inc({ method: req.method, route: routePath, status: res.statusCode });
+      httpRequestCount.inc({
+        method: req.method,
+        route: routePath,
+        status: res.statusCode
+      });
       end();
     });
 
@@ -36,7 +43,7 @@ function prometheusMiddleware(routePath = 'unknown') {
 
 function metricsHandler(req, res) {
   res.setHeader('Content-Type', register.contentType);
-  register.metrics().then(metrics => res.end(metrics));
+  register.metrics().then((metrics) => res.end(metrics));
 }
 
 module.exports = { prometheusMiddleware, metricsHandler };
