@@ -17,7 +17,7 @@ Install from npm or GitHub:
 npm install oxy-route
 
 # From GitHub
-npm install github:kkennymore/oxy-route
+npm install git+ssh://git@github.com/kkennymore/oxy-route.git
 ```
 
 ---

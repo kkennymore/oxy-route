@@ -4,7 +4,7 @@ const Router = require('./src/Router');
 const WebSocketEngine = require('./src/ws/Engine');
 const ClusterEngine = require('./src/cluster/Engine');
 const { validate } = require('./src/validation/validator');
-const Logger = require('./src/logger');
+const Logger = require('./src/logging/logger');
 const metrics = require('./src/monitoring/metrics');
 
 // Security modules
@@ -19,12 +19,19 @@ const debug = require('./src/tools/debugger');
 // Testing helpers
 const mockRouter = require('./src/testing/mockRouter');
 const mockRequest = require('./src/testing/mockRequest');
+// server
+const {startServer} = require('./src/server');
+
+// middleware
+const {jsonParser} = require('./src/middleware/middleware');
 
 module.exports = {
   Router,
   WebSocketEngine,
+  startServer,
   ClusterEngine,
   validate,
+  jsonParser,
   Logger,
   metrics,
   security: {

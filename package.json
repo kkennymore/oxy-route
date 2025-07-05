@@ -5,13 +5,15 @@
   "main": "index.js",
   "type": "module",
   "bin": {
-    "oxy-route": "./bin/oxy-route.js"
+    "oxy-route": "./bin/oxy-route.cjs"
   },
   "scripts": {
-    "test": "jest",
+    "test": "jest --detectOpenHandles",
     "bench": "node tests/benchmark/route.bench.js",
+    "start": "node app.js",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "load:test": "artillery run tests/load/basic.yml",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0"
   },
   "keywords": [
@@ -28,12 +30,14 @@
   "author": "Usiobaifo Kenneth <your.email@example.com>",
   "license": "MIT",
   "dependencies": {
+    "find-my-way": "^9.3.0",
     "prom-client": "^15.x",
     "uuid": "^9.x",
     "winston": "^3.x",
     "zod": "^3.x"
   },
   "devDependencies": {
+    "artillery": "^2.0.23",
     "autocannon": "^7.x",
     "conventional-changelog-cli": "^5.0.0",
     "eslint": "^9.30.1",

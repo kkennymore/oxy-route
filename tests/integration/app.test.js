@@ -3,15 +3,19 @@
 const http = require('http');
 const supertest = require('supertest');
 const { z } = require('zod');
+
 const Router = require('../../src/Router');
 const { validate } = require('../../src/validation/validator');
+
 const helmet = require('../../src/security/helmet');
 const sanitize = require('../../src/security/sanitize');
 const rateLimit = require('../../src/security/rateLimit');
+
 const {
   prometheusMiddleware,
   metricsHandler
 } = require('../../src/monitoring/metrics');
+
 const { requestLogger } = require('../../src/logging/logger');
 
 describe('App Integration - oxy-route full stack', () => {
@@ -20,11 +24,27 @@ describe('App Integration - oxy-route full stack', () => {
   beforeAll(() => {
     const router = new Router();
 
+    // Middleware to manually parse JSON request body
+    router.use((req, res, next) => {
+      let body = '';
+      req.on('data', chunk => (body += chunk));
+      req.on('end', () => {
+        try {
+          req.body = JSON.parse(body || '{}');
+        } catch {
+          req.body = {};
+        }
+        next();
+      });
+    });
+
+    // Global middlewares
     router.use(requestLogger);
     router.use(helmet);
     router.use(sanitize);
     router.use(rateLimit({ windowMs: 1000, max: 10 }));
 
+    // POST /register route with validation and structured response
     router.post(
       '/register',
       validate({
@@ -34,34 +54,58 @@ describe('App Integration - oxy-route full stack', () => {
         })
       }),
       (req, res) => {
-        res.end(`Welcome ${req.body.username}`);
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.end(
+          JSON.stringify({
+            ok: true,
+            data: {
+              welcome: true,
+              user: req.body.username
+            }
+          })
+        );
       }
     );
 
+    // Expose Prometheus metrics
     router.get('/metrics', prometheusMiddleware('/metrics'), metricsHandler);
 
     app = http.createServer(router.handler());
     server = supertest(app);
   });
 
-  test('POST /register with valid payload returns welcome', async () => {
+  test('POST /register with valid payload returns welcome JSON', async () => {
     const res = await server
       .post('/register')
+      .set('Content-Type', 'application/json')
       .send({ username: 'admin', password: '123456' });
+
     expect(res.statusCode).toBe(200);
-    expect(res.text).toContain('Welcome');
+    expect(res.headers['content-type']).toMatch(/application\/json/);
+    expect(res.body.ok).toBe(true);
+    expect(res.body.data).toEqual({
+      welcome: true,
+      user: 'admin'
+    });
   });
 
-  test('POST /register with invalid payload returns 400', async () => {
+  test('POST /register with invalid payload returns 400 with errors', async () => {
     const res = await server
       .post('/register')
+      .set('Content-Type', 'application/json')
       .send({ username: 'a', password: '123' });
+
     expect(res.statusCode).toBe(400);
+    expect(res.headers['content-type']).toMatch(/application\/json/);
     expect(res.body.ok).toBe(false);
+    expect(res.body.errors).toBeDefined();
+    expect(res.body.errors.body).toBeDefined();
   });
 
-  test('GET /metrics returns Prometheus metrics', async () => {
+  test('GET /metrics returns Prometheus metrics output', async () => {
     const res = await server.get('/metrics');
+
     expect(res.statusCode).toBe(200);
     expect(res.text).toContain('http_requests_total');
   });

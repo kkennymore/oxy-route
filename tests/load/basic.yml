@@ -1,0 +1,32 @@
+config:
+  target: "http://localhost:3000"  # or the test server port
+  phases:
+    - duration: 60
+      arrivalRate: 50  # 50 requests per second
+  payload:
+    path: "users.csv"
+    fields:
+      - username
+      - password
+  defaults:
+    headers:
+      content-type: "application/json"
+
+scenarios:
+  - name: Register User
+    flow:
+      - post:
+          url: "/register"
+          json:
+            username: "{{ username }}"
+            password: "{{ password }}"
+# socket request testing
+  - name: Chat room
+    engine: "ws"
+    flow:
+      - connect:
+          url: "ws://localhost:3000/chat"
+      - send: { msg: "Hello!" }
+      - think: 1
+      - send: { msg: "Another message" }
+
